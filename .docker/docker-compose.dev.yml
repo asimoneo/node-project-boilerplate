@@ -1,0 +1,30 @@
+version: '3.7'
+
+volumes:
+  mongo_data:
+  node_modules:
+
+services:
+  mongo:
+    build:
+      context: ../project
+      dockerfile: ../.docker/mongo.Dockerfile
+    command: mongod --bind_ip 0.0.0.0
+    volumes:
+      - mongo_data:/data/db
+
+  app:
+    environment:
+      - MONGO_URL
+      - NODE_ENV=development
+    build:
+      context: ../project
+      dockerfile: ../.docker/node.Dockerfile
+    volumes:
+      - ../project:/srv
+      - node_modules:/srv/node_modules
+    command: node index.js
+    depends_on:
+      - mongo
+    ports:
+      - 4000:4000
